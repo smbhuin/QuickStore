@@ -1,0 +1,32 @@
+{
+  "host": "localhost",
+  "port": 8080,
+  "debug": true,
+  "access_tokens": [
+    {
+      "name": "xyz_app",
+      "token": "your_access_token_here"
+    }
+  ],
+  "collections": [
+    {
+      "name": "products", 
+      "schema": {
+        "title": "Product",
+        "description": "A product from Acme's catalog",
+        "type": "object",
+        "properties": {
+          "productId": {
+            "description": "The unique identifier for a product",
+            "type": "integer"
+          },
+          "productName": {
+            "description": "Name of the product",
+            "type": "string"
+          }
+        }
+      }
+    }
+  ]
+}
+
