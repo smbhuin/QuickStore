@@ -75,8 +75,6 @@ func insertDocumentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getDocumentHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	collectionName := r.PathValue("collection")
 	if !isCollectionExists(collectionName) {
 		sendError(w, "Collection not found", http.StatusNotFound)
@@ -85,39 +83,38 @@ func getDocumentHandler(w http.ResponseWriter, r *http.Request) {
 
 	authToken := getAuthTokenFromRequest(r)
 	if !isAuthTokenValid(authToken, collectionName, ActionCreate) {
-		http.Error(w, `{"error": {"message": "Unauthorized access"}}`, http.StatusUnauthorized)
+		sendError(w, "Unauthorized access", http.StatusUnauthorized)
 		return
 	}
 
 	idStr := r.PathValue("id")
 	id, err := StoiStrict(idStr)
 	if err != nil {
-		http.Error(w, `{"error": {"message": "Invalid ID"}}`, http.StatusBadRequest)
+		sendError(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
 
 	document, err := getDocument(db, collectionName, id)
 	if err != nil {
 		log.Printf("Error retrieving document: %v", err)
-		http.Error(w, `{"error": {"message": "Failed to retrieve document"}}`, http.StatusInternalServerError)
+		sendError(w, "Failed to retrieve document", http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(document)
 }
 
 func getAllDocumentsHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	collectionName := r.PathValue("collection")
 	if !isCollectionExists(collectionName) {
-		http.Error(w, `{"error": {"message": "Collection not found"}}`, http.StatusNotFound)
+		sendError(w, "Collection not found", http.StatusNotFound)
 		return
 	}
 
 	authToken := getAuthTokenFromRequest(r)
 	if !isAuthTokenValid(authToken, collectionName, ActionCreate) {
-		http.Error(w, `{"error": {"message": "Unauthorized access"}}`, http.StatusUnauthorized)
+		sendError(w, "Unauthorized access", http.StatusUnauthorized)
 		return
 	}
 
@@ -127,39 +124,38 @@ func getAllDocumentsHandler(w http.ResponseWriter, r *http.Request) {
 	documents, err := getAllDocuments(db, collectionName, skip, limit)
 	if err != nil {
 		log.Printf("Error retrieving documents: %v", err)
-		http.Error(w, `{"error": {"message": "Failed to retrieve documents"}}`, http.StatusInternalServerError)
+		sendError(w, "Failed to retrieve documents", http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(documents)
 }
 
 func replaceDocumentHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	collectionName := r.PathValue("collection")
 	if !isCollectionExists(collectionName) {
-		http.Error(w, `{"error": {"message": "Collection not found"}}`, http.StatusNotFound)
+		sendError(w, "Collection not found", http.StatusNotFound)
 		return
 	}
 
 	authToken := getAuthTokenFromRequest(r)
 	if !isAuthTokenValid(authToken, collectionName, ActionReplace) {
-		http.Error(w, `{"error": {"message": "Unauthorized access"}}`, http.StatusUnauthorized)
+		sendError(w, "Unauthorized access", http.StatusUnauthorized)
 		return
 	}
 
 	idStr := r.PathValue("id")
 	id, err := StoiStrict(idStr)
 	if err != nil {
-		http.Error(w, `{"error": {"message": "Invalid ID"}}`, http.StatusBadRequest)
+		sendError(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
 
 	var document map[string]any
 	err = json.NewDecoder(r.Body).Decode(&document)
 	if err != nil {
-		http.Error(w, `{"error": {"message": "Invalid JSON"}}`, http.StatusBadRequest)
+		sendError(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
@@ -167,11 +163,11 @@ func replaceDocumentHandler(w http.ResponseWriter, r *http.Request) {
 	err = updateDocument(db, collectionName, id, document)
 	if err != nil {
 		log.Printf("Error updating document: %v", err)
-		http.Error(w, `{"error": {"message": "Failed to update document"}}`, http.StatusInternalServerError)
+		sendError(w, "Failed to update document", http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Fprintf(w, `{"message": "Document updated"}`)
+	sendSuccess(w, "Document updated")
 }
 
 func deleteDocumentHandler(w http.ResponseWriter, r *http.Request) {
@@ -179,29 +175,29 @@ func deleteDocumentHandler(w http.ResponseWriter, r *http.Request) {
 
 	collectionName := r.PathValue("collection")
 	if !isCollectionExists(collectionName) {
-		http.Error(w, `{"error": {"message": "Collection not found"}}`, http.StatusNotFound)
+		sendError(w, "Collection not found", http.StatusNotFound)
 		return
 	}
 
 	authToken := getAuthTokenFromRequest(r)
 	if !isAuthTokenValid(authToken, collectionName, ActionReplace) {
-		http.Error(w, `{"error": {"message": "Unauthorized access"}}`, http.StatusUnauthorized)
+		sendError(w, "Unauthorized access", http.StatusUnauthorized)
 		return
 	}
 
 	idStr := r.PathValue("id")
 	id, err := StoiStrict(idStr)
 	if err != nil {
-		http.Error(w, `{"error": {"message": "Invalid ID"}}`, http.StatusBadRequest)
+		sendError(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
 
 	err = deleteDocument(db, collectionName, id)
 	if err != nil {
 		log.Printf("Error deleting document: %v", err)
-		http.Error(w, `{"error": {"message": "Failed to delete document"}}`, http.StatusInternalServerError)
+		sendError(w, "Failed to delete document", http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Fprintf(w, `{"message": "Document deleted"}`)
+	sendSuccess(w, "Document deleted")
 }
