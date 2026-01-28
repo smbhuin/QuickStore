@@ -4,13 +4,30 @@
   "debug": true,
   "access_tokens": [
     {
+      "name": "no_auth",
+      "token": ""
+    },
+    {
+      "name": "public",
+      "token": "piblic_access_token"
+    },
+    {
       "name": "xyz_app",
-      "token": "your_access_token_here"
+      "token": "xyz_access_token"
     }
   ],
   "collections": [
     {
-      "name": "products", 
+      "name": "products",
+      "auth": {
+        "all": ["xyz_app"],
+        "create": ["public"],
+        "read": ["public"],
+        "list": ["xyz_app"],
+        "replace": ["public"],
+        "patch": ["public"],
+        "delete": ["public"]
+      },
       "schema": {
         "title": "Product",
         "description": "A product from Acme's catalog",
@@ -24,7 +41,9 @@
             "description": "Name of the product",
             "type": "string"
           }
-        }
+        },
+        "required": ["productId","productName"],
+        "additionalProperties": false
       }
     }
   ]
