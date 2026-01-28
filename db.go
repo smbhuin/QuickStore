@@ -15,10 +15,10 @@ type DataTable struct {
 	Data      string `db:"data"`
 }
 
-func connectToDatabase() (*sqlx.DB, error) {
+func connectToDatabase(filePath string) (*sqlx.DB, error) {
 	var db *sqlx.DB
 	var err error
-	db, err = sqlx.Open("sqlite", "./quickstore.db")
+	db, err = sqlx.Open("sqlite", filePath)
 	if err != nil {
 		return db, err
 	}

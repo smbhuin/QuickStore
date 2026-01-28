@@ -7,6 +7,7 @@ import (
 )
 
 const configFile = "config.json"
+const databaseFile = "./quickstore.db"
 
 func init() {
 	var err error
@@ -20,7 +21,7 @@ func init() {
 	schemaCache = buildSchemaCache(config.Collections)
 	authCache = buildAuthCache(config)
 
-	db, err = connectToDatabase()
+	db, err = connectToDatabase(databaseFile)
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
