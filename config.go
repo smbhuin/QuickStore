@@ -19,6 +19,7 @@ const (
 
 type Config struct {
 	Host         string        `json:"host"`
+	OpenapiHost  string        `json:"openapi_host"`
 	Port         int           `json:"port"`
 	Debug        bool          `json:"debug"`
 	AccessTokens []AccessToken `json:"access_tokens"`

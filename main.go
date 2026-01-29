@@ -9,6 +9,8 @@ import (
 const configFile = "config.json"
 const databaseFile = "./quickstore.db"
 
+var rootMux *http.ServeMux
+
 func init() {
 	var err error
 	config, err = readConfig(configFile)
@@ -20,6 +22,7 @@ func init() {
 
 	schemaCache = buildSchemaCache(config.Collections)
 	authCache = buildAuthCache(config)
+	openapiSpec = buildOpenapiSpec(config)
 
 	db, err = connectToDatabase(databaseFile)
 	if err != nil {
@@ -38,13 +41,24 @@ func init() {
 }
 
 func registerRoutes() {
-	http.HandleFunc("GET /health", healthHandler)
-	http.HandleFunc("GET /{collection}", getAllDocumentsHandler)
-	http.HandleFunc("POST /{collection}", insertDocumentHandler)
-	http.HandleFunc("POST /{collection}/", insertDocumentHandler)
-	http.HandleFunc("GET /{collection}/{id}", getDocumentHandler)
-	http.HandleFunc("PUT /{collection}/{id}", replaceDocumentHandler)
-	http.HandleFunc("DELETE /{collection}/{id}", deleteDocumentHandler)
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /health", healthHandler)
+
+	mux.HandleFunc("OPTIONS /{collection}", mockOptionsHandler)
+	mux.HandleFunc("OPTIONS /{collection}/{id}", mockOptionsHandler)
+	mux.HandleFunc("GET /{collection}", getAllDocumentsHandler)
+	mux.HandleFunc("POST /{collection}", insertDocumentHandler)
+	mux.HandleFunc("POST /{collection}/", insertDocumentHandler)
+	mux.HandleFunc("GET /{collection}/{id}", getDocumentHandler)
+	mux.HandleFunc("PUT /{collection}/{id}", replaceDocumentHandler)
+	mux.HandleFunc("DELETE /{collection}/{id}", deleteDocumentHandler)
+
+	apiMux := SetGlobalHeaders(mux)
+
+	rootMux = http.NewServeMux()
+	rootMux.Handle("/api/", http.StripPrefix("/api", apiMux))
+	rootMux.Handle("/apispec/", http.StripPrefix("/apispec", SwaggerHandler()))
+
 }
 
 func main() {
@@ -54,7 +68,7 @@ func main() {
 
 	log.Printf("QuickStore Server starting on http://%s:%d", config.Host, config.Port)
 
-	err := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Host, config.Port), nil)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", config.Host, config.Port), rootMux)
 	if err != nil {
 		log.Fatalf("Error starting server: %v", err)
 	}

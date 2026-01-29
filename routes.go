@@ -35,6 +35,23 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	sendSuccess(w, "OK")
 }
 
+// SetGlobalHeaders is a wrapper function that sets common headers.
+func SetGlobalHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set headers here. They must be set before writing the response body.
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+		w.Header().Set("Access-Control-Allow-Headers", "accept, Content-Type, Authorization")
+		// Call the next handler in the chain
+		next.ServeHTTP(w, r)
+	})
+}
+
+func mockOptionsHandler(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
 func insertDocumentHandler(w http.ResponseWriter, r *http.Request) {
 	collectionName := r.PathValue("collection")
 	if !isCollectionExists(collectionName) {
