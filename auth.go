@@ -11,13 +11,13 @@ func buildAuthCache(config Config) map[string][]string {
 	}
 	var authCache = make(map[string][]string)
 	for _, collection := range config.Collections {
-		baseTokenNames := collection.Auth[ActionAll]
-		authCache[collection.Name+"-"+ActionCreate] = tokensFromTokenNames(baseTokenNames, collection.Auth[ActionCreate], tokenCache)
-		authCache[collection.Name+"-"+ActionRead] = tokensFromTokenNames(baseTokenNames, collection.Auth[ActionRead], tokenCache)
-		authCache[collection.Name+"-"+ActionList] = tokensFromTokenNames(baseTokenNames, collection.Auth[ActionList], tokenCache)
-		authCache[collection.Name+"-"+ActionReplace] = tokensFromTokenNames(baseTokenNames, collection.Auth[ActionReplace], tokenCache)
-		authCache[collection.Name+"-"+ActionPatch] = tokensFromTokenNames(baseTokenNames, collection.Auth[ActionPatch], tokenCache)
-		authCache[collection.Name+"-"+ActionDelete] = tokensFromTokenNames(baseTokenNames, collection.Auth[ActionDelete], tokenCache)
+		baseTokenNames := collection.Auth.All
+		authCache[collection.Name+"-"+ActionCreate] = tokensFromTokenNames(baseTokenNames, collection.Auth.Create, tokenCache)
+		authCache[collection.Name+"-"+ActionRead] = tokensFromTokenNames(baseTokenNames, collection.Auth.Read, tokenCache)
+		authCache[collection.Name+"-"+ActionList] = tokensFromTokenNames(baseTokenNames, collection.Auth.List, tokenCache)
+		authCache[collection.Name+"-"+ActionReplace] = tokensFromTokenNames(baseTokenNames, collection.Auth.Replace, tokenCache)
+		authCache[collection.Name+"-"+ActionPatch] = tokensFromTokenNames(baseTokenNames, collection.Auth.Patch, tokenCache)
+		authCache[collection.Name+"-"+ActionDelete] = tokensFromTokenNames(baseTokenNames, collection.Auth.Delete, tokenCache)
 	}
 	return authCache
 }

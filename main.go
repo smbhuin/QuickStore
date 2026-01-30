@@ -22,7 +22,11 @@ func init() {
 
 	schemaCache = buildSchemaCache(config.Collections)
 	authCache = buildAuthCache(config)
-	openapiSpec = buildOpenapiSpec(config)
+
+	openapiSpec, err = buildOpenapiSpec(config)
+	if err != nil {
+		log.Fatalf("Error creating OpenAPI spec: %v", err)
+	}
 
 	db, err = connectToDatabase(databaseFile)
 	if err != nil {
@@ -57,7 +61,7 @@ func registerRoutes() {
 
 	rootMux = http.NewServeMux()
 	rootMux.Handle("/api/", http.StripPrefix("/api", apiMux))
-	rootMux.Handle("/apispec/", http.StripPrefix("/apispec", SwaggerHandler()))
+	rootMux.Handle("/docs/", http.StripPrefix("/docs", SwaggerHandler()))
 
 }
 

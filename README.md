@@ -21,8 +21,8 @@ The server will start on `http://localhost:8080`
 
 ## API Docs
 
-`http://localhost:8080/apispec/` - Swagger UI
-`http://localhost:8080/apispec/apispec.json` - OpenAPI Spec JSON
+`http://localhost:8080/docs/` - Swagger UI
+`http://localhost:8080/docs/apispec.json` - OpenAPI Spec JSON
 
 ## Testing the Endpoint
 

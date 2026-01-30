@@ -2,7 +2,6 @@
   "host": "localhost",
   "openapi_host": "http://localhost:8080",
   "port": 8080,
-  "debug": true,
   "access_tokens": [
     {
       "name": "no_auth",
@@ -13,21 +12,21 @@
       "token": "piblic_access_token"
     },
     {
-      "name": "xyz_app",
-      "token": "xyz_access_token"
+      "name": "admin",
+      "token": "admin_access_token"
     }
   ],
   "collections": [
     {
       "name": "products",
       "auth": {
-        "all": ["xyz_app"],
-        "create": ["public"],
+        "all": ["admin"],
+        "create": [],
         "read": ["public"],
-        "list": ["xyz_app"],
-        "replace": ["public"],
-        "patch": ["public"],
-        "delete": ["public"]
+        "list": ["public"],
+        "replace": [],
+        "patch": [],
+        "delete": []
       },
       "schema": {
         "title": "Product",

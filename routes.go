@@ -99,7 +99,7 @@ func getDocumentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authToken := getAuthTokenFromRequest(r)
-	if !isAuthTokenValid(authToken, collectionName, ActionCreate) {
+	if !isAuthTokenValid(authToken, collectionName, ActionRead) {
 		sendError(w, "Unauthorized access", http.StatusUnauthorized)
 		return
 	}
@@ -130,7 +130,7 @@ func getAllDocumentsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authToken := getAuthTokenFromRequest(r)
-	if !isAuthTokenValid(authToken, collectionName, ActionCreate) {
+	if !isAuthTokenValid(authToken, collectionName, ActionList) {
 		sendError(w, "Unauthorized access", http.StatusUnauthorized)
 		return
 	}
@@ -188,8 +188,6 @@ func replaceDocumentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteDocumentHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	collectionName := r.PathValue("collection")
 	if !isCollectionExists(collectionName) {
 		sendError(w, "Collection not found", http.StatusNotFound)
@@ -197,7 +195,7 @@ func deleteDocumentHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authToken := getAuthTokenFromRequest(r)
-	if !isAuthTokenValid(authToken, collectionName, ActionReplace) {
+	if !isAuthTokenValid(authToken, collectionName, ActionDelete) {
 		sendError(w, "Unauthorized access", http.StatusUnauthorized)
 		return
 	}
