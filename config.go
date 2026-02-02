@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"log"
 	"os"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 var config Config
@@ -20,55 +22,61 @@ const (
 )
 
 type Config struct {
-	Host         string        `json:"host" validate:"required"`
-	OpenapiHost  string        `json:"openapi_host" validate:"required"`
-	Port         int           `json:"port" validate:"required"`
-	AccessTokens []AccessToken `json:"access_tokens" validate:"required"`
-	Collections  []Collection  `json:"collections" validate:"required"`
+	Host         string        `json:"host"`
+	OpenapiHost  string        `json:"openapi_host"`
+	Port         int           `json:"port"`
+	AccessTokens []AccessToken `json:"access_tokens"`
+	Collections  []Collection  `json:"collections"`
 }
 
 type AccessToken struct {
-	Name  string `json:"name" validate:"required"`
-	Token string `json:"token" validate:"required"`
+	Name  string `json:"name"`
+	Token string `json:"token"`
 }
 
 type Collection struct {
-	Name   string         `json:"name" validate:"required"`
-	Auth   CollectionAuth `json:"auth" validate:"required"`
-	Schema map[string]any `json:"schema" validate:"required"`
+	Name   string         `json:"name"`
+	Auth   CollectionAuth `json:"auth"`
+	Schema map[string]any `json:"schema"`
 }
 
 type CollectionAuth struct {
-	All     []string `json:"all" validate:"required"`
-	Create  []string `json:"create" validate:"required"`
-	Read    []string `json:"read" validate:"required"`
-	List    []string `json:"list" validate:"required"`
-	Replace []string `json:"replace" validate:"required"`
-	Patch   []string `json:"patch" validate:"required"`
-	Delete  []string `json:"delete" validate:"required"`
+	All     []string `json:"all"`
+	Create  []string `json:"create"`
+	Read    []string `json:"read"`
+	List    []string `json:"list"`
+	Replace []string `json:"replace"`
+	Patch   []string `json:"patch"`
+	Delete  []string `json:"delete"`
 }
 
 func readConfig(fileName string) (Config, error) {
 	var config Config
-	file, err := os.Open(fileName)
+	content, err := os.ReadFile(fileName)
 	if err != nil {
 		return config, err
 	}
-	defer file.Close()
-	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&config)
-	if err != nil {
-		return config, err
-	}
-
-	// Add validation
-	validate := validator.New()
-	err = validate.Struct(config)
+	err = json.Unmarshal(content, &config)
 	if err != nil {
 		return config, err
 	}
 
-	return config, nil
+	documentLoader := gojsonschema.NewStringLoader(string(content))
+	schemaLoader := gojsonschema.NewStringLoader(configSchema)
+
+	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
+	if err != nil {
+		return config, err
+	}
+	if result.Valid() {
+		return config, nil
+	}
+	log.Printf("Found error in config. see errors :\n")
+	for _, err := range result.Errors() {
+		// Err implements the ResultError interface
+		log.Printf("- %s\n", err)
+	}
+	return config, errors.New("Config is invalid")
 }
 
 func getCollectionByName(collectionName string) *Collection {
