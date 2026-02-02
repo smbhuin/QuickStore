@@ -24,7 +24,7 @@ func buildOpenapiSpec(config Config) ([]byte, error) {
 		},
 		"servers": []map[string]any{
 			{
-				"url": config.OpenapiHost + "/api",
+				"url": "/api",
 			},
 		},
 		"components": map[string]any{
