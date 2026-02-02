@@ -114,7 +114,11 @@ func getDocumentHandler(w http.ResponseWriter, r *http.Request) {
 	document, err := getDocument(db, collectionName, id)
 	if err != nil {
 		log.Printf("Error retrieving document: %v", err)
-		sendError(w, "Failed to retrieve document", http.StatusInternalServerError)
+		if isDocumentNotFound(err) {
+			sendError(w, "Document not found", http.StatusNotFound)
+		} else {
+			sendError(w, "Failed to retrieve document", http.StatusInternalServerError)
+		}
 		return
 	}
 

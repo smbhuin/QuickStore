@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 
 	"github.com/jmoiron/sqlx"
@@ -49,6 +50,13 @@ func migrateDatabase(db *sqlx.DB, collections []Collection) error {
 	return nil
 }
 
+func isDocumentNotFound(err error) bool {
+	if err == sql.ErrNoRows {
+		return true
+	}
+	return false
+}
+
 // Store data as JSONB
 func insertDocument(db *sqlx.DB, collectionName string, document map[string]any) error {
 	jsonData, err := json.Marshal(document)
@@ -69,15 +77,14 @@ func getDocument(db *sqlx.DB, collectionName string, id int) (map[string]any, er
 	if err != nil {
 		return nil, err
 	}
-
 	var document map[string]any
 	err = json.Unmarshal([]byte(record.Data), &document)
 	if err == nil {
 		document["_id"] = record.ID
 		document["_created_at"] = record.CreatedAt
+		return document, err
 	}
-
-	return document, err
+	return nil, err
 }
 
 func getAllDocuments(db *sqlx.DB, collectionName string, skip int, limit int) ([]map[string]any, error) {
@@ -87,7 +94,7 @@ func getAllDocuments(db *sqlx.DB, collectionName string, skip int, limit int) ([
 	if err != nil {
 		return nil, err
 	}
-	var documents []map[string]any
+	documents := []map[string]any{}
 	for _, record := range records {
 		var document map[string]any
 		err = json.Unmarshal([]byte(record.Data), &document)
@@ -98,7 +105,6 @@ func getAllDocuments(db *sqlx.DB, collectionName string, skip int, limit int) ([
 		}
 	}
 	return documents, nil
-
 }
 
 func deleteDocument(db *sqlx.DB, collectionName string, id int) error {
@@ -112,7 +118,6 @@ func updateDocument(db *sqlx.DB, collectionName string, id int, document map[str
 	if err != nil {
 		return err
 	}
-
 	query := `UPDATE ` + collectionName + ` SET data = jsonb($1) WHERE id = $2`
 	_, err = db.Exec(query, jsonData, id)
 	return err
