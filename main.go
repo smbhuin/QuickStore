@@ -1,17 +1,25 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 )
 
-const configFile = "config.json"
-const databaseFile = "./quickstore.db"
+const defaultConfigFile = "./config.json"
+const defaultDatabaseFile = "./quickstore.db"
+
+var configFile string
+var databaseFile string
 
 var rootMux *http.ServeMux
 
 func init() {
+	flag.StringVar(&configFile, "config", defaultConfigFile, "Path to config file")
+	flag.StringVar(&databaseFile, "db", defaultDatabaseFile, "Path to database file")
+	flag.Parse()
+
 	var err error
 	config, err = readConfig(configFile)
 	if err != nil {
