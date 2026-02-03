@@ -1,6 +1,6 @@
-# QuickStore - Go HTTP Server
+# QuickStore — Lightweight Go Document Store API
 
-A simple Go HTTP server with a document store API.
+A simple Go HTTP API server that allowes to store and access JSON decoments with predefined document schema.
 
 ## Running the Server
 
@@ -8,7 +8,60 @@ A simple Go HTTP server with a document store API.
 go run .
 ```
 
-The server will start on `http://localhost:8080`
+The server will start on `http://localhost:8080` as specified in `config.json`.
+
+You can override the config and database paths:
+```bash
+go run . -config ./config.json -db ./quickstore.db
+```
+
+## Configuration
+
+QuickStore reads `config.json` at startup and validates it against the JSON Schema in `config_schema.go`.
+
+Example:
+```json
+{
+  "host": "localhost",
+  "port": 8080,
+  "access_tokens": [
+    { "name": "public", "token": "public_access_token" }
+    { "name": "private", "token": "private_access_token" }
+  ],
+  "collections": [
+    {
+      "name": "products",
+      "auth": {
+        "all": ["private"],
+        "create": [],
+        "read": ["public"],
+        "list": ["public"],
+        "replace": [],
+        "patch": [],
+        "delete": []
+      }
+    }
+  ]
+}
+```
+
+Field usage:
+- `host`: Hostname or IP address the server binds to.
+- `port`: TCP port the server listens on.
+- `access_tokens`: List of access tokens that can authenticate requests.
+- `access_tokens[].name`: Friendly label used by collection auth rules.
+- `access_tokens[].token`: Secret bearer token value.
+- `collections`: List of collection definitions.
+- `collections[].name`: Collection name used in API routes.
+- `collections[].auth`: Per-action access control lists.
+- `collections[].auth.all`: Tokens allowed to perform any action.
+- `collections[].auth.create`: Tokens allowed to create records.
+- `collections[].auth.read`: Tokens allowed to read a single record.
+- `collections[].auth.list`: Tokens allowed to list records.
+- `collections[].auth.replace`: Tokens allowed to replace a record.
+- `collections[].auth.patch`: Tokens allowed to partially update a record.
+- `collections[].auth.delete`: Tokens allowed to delete a record.
+- `collections[].schema`: JSON Schema of the collection document.
 
 ## API Endpoints
 
@@ -49,7 +102,6 @@ go build -o quickstore
 ```bash
 go build -o quickstore -ldflags="-s -w"
 ```
-
 
 ## Project Structure
 
