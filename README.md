@@ -2,7 +2,17 @@
 
 A simple Go HTTP API server that allowes to store and access JSON decoments with predefined document schema.
 
+## Purpose
+
+QuickStore can be used to run a small server for storing web form submissions, or to collect user feedback about a product in a structured JSON format.
+
 ## Running the Server
+
+1. clone this repo.
+
+2. rename `config.example.json` to `config.json` and update the contents according to your needs.
+
+3. Run
 
 ```bash
 go run .
