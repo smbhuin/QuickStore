@@ -134,6 +134,11 @@ go build -o quickstore -ldflags="-s -w"
 
 A multi-stage `Dockerfile` is provided for building a small container image.  You can build and run the service with Docker or convenience of `docker-compose`.
 
+### Prerequisites
+
+- Make sure that Docker is installed and running.
+- Create a `config.json` file and empty `quickstore.db` file in project directory.
+
 ### 1. build using Docker
 
 ```bash
@@ -154,25 +159,13 @@ docker run --rm -p 8080:8080 \
 Make sure `config.json` exists alongside the compose file (you can copy from `config.example.json`).
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 The service will be available at `http://localhost:8080` and the database file
 is stored in `./quickstore.db` on the host.
 
-You can stop the stack with `docker-compose down`.
-
-
-```bash
-go build -o quickstore
-./quickstore
-```
-
-*Build in release mode*
-
-```bash
-go build -o quickstore -ldflags="-s -w"
-```
+You can stop the stack with `docker compose down`.
 
 ## Project Structure
 

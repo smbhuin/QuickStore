@@ -15,8 +15,6 @@ FROM scratch
 
 # copy binary and necessary assets
 COPY --from=builder /app/quickstore /quickstore
-# optional: copy sample config so users can override
-COPY --from=builder /app/config.example.json /config.example.json
 
 # default working directory inside container
 WORKDIR /

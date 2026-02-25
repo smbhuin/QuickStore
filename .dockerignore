@@ -4,4 +4,3 @@ quickstore
 *.log
 .git
 .gitignore
-**/swagger-ui/
