@@ -130,6 +130,50 @@ go build -o quickstore
 go build -o quickstore -ldflags="-s -w"
 ```
 
+## Docker & Docker Compose
+
+A multi-stage `Dockerfile` is provided for building a small container image.  You can build and run the service with Docker or convenience of `docker-compose`.
+
+### 1. build using Docker
+
+```bash
+docker build -t quickstore:latest .
+```
+
+```
+# run with local config/database mounted
+docker run --rm -p 8080:8080 \
+    -v $(pwd)/config.json:/config.json:ro \
+    -v $(pwd)/quickstore.db:/quickstore.db \
+    quickstore:latest \
+    -config /config.json -db /quickstore.db
+```
+
+### 2. using docker-compose
+
+Make sure `config.json` exists alongside the compose file (you can copy from `config.example.json`).
+
+```bash
+docker-compose up --build
+```
+
+The service will be available at `http://localhost:8080` and the database file
+is stored in `./quickstore.db` on the host.
+
+You can stop the stack with `docker-compose down`.
+
+
+```bash
+go build -o quickstore
+./quickstore
+```
+
+*Build in release mode*
+
+```bash
+go build -o quickstore -ldflags="-s -w"
+```
+
 ## Project Structure
 
 - `go.mod` - Go module definition

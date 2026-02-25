@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  quickstore:
+    build: .
+    image: quickstore:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      # mount local configuration and database
+      - ./config.json:/config.json:ro
+      - ./quickstore.db:/quickstore.db
+    # override command if you need to pass custom flags
+    command: ["-config", "/config.json", "-db", "/quickstore.db"]
+    environment:
+      - TZ=UTC
+    restart: always
+
+# you can add additional services here (e.g. a reverse proxy or file share)

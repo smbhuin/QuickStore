@@ -1,0 +1,7 @@
+# Ignore Go build output and local files
+quickstore
+*.db
+*.log
+.git
+.gitignore
+**/swagger-ui/
